@@ -1,0 +1,26 @@
+name: Color Generator
+
+on:
+  repository_dispatch:
+    types: [color_request]
+
+jobs:
+  generate_color:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate Random Color
+        id: generate_color
+        run: |
+          echo "Generating random color"
+          color=$(printf "#%06x" $((RANDOM*RANDOM)))
+          echo "::set-output name=color::$color"
+
+      - name: Output color
+        run: echo "Generated color: ${{ steps.generate_color.outputs.color }}"
+
+      - name: Post color to GitHub Pages
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"color\": \"${{ steps.generate_color.outputs.color }}\"}" \
+          https://username.github.io/repository/color-endpoint
